@@ -1,7 +1,5 @@
 # open-reg-auto
 
-从 `basketikun/chatgpt2api` 抽离并收口出来的纯协议注册脚本项目。
-
 ## 当前状态
 
 当前版本已经实测打通完整注册链，并成功换出 token。

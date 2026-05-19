@@ -4,6 +4,8 @@
 
 当前版本已经实测打通完整注册链，并成功换出 token。
 
+本项目 部分参考 `basketikun/chatgpt2api` 纯协议注册脚本项目 目前需要一定能力才能完美使用 正常配置环境下达到了很高了reg成功率。
+
 已验证成功的稳定主链为：
 
 1. `/api/accounts/authorize`

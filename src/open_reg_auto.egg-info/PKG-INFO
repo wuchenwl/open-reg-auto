@@ -1,0 +1,28 @@
+Metadata-Version: 2.4
+Name: open-reg-auto
+Version: 0.1.0
+Summary: Standalone OpenAI register protocol extractor
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.32.0
+Requires-Dist: curl-cffi>=0.15.0
+
+# open-reg-auto
+
+从 `basketikun/chatgpt2api` 抽离出来的纯协议注册脚本项目。
+
+## 当前目标
+
+- 先把 register 协议链路独立出来
+- 不依赖原项目的 FastAPI / 账号池 / Web 面板
+- 后续再补 mailbox provider、结果持久化、批量并发
+
+## 运行方式（开发中）
+
+```bash
+cd /www/wwwroot/open-reg-auto
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+open-reg-auto --help
+```

@@ -1,0 +1,2 @@
+[console_scripts]
+open-reg-auto = open_reg_auto.cli:main

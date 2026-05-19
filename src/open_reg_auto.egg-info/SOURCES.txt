@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+src/open_reg_auto/__init__.py
+src/open_reg_auto/cli.py
+src/open_reg_auto/config.py
+src/open_reg_auto/logging_utils.py
+src/open_reg_auto/mail_provider.py
+src/open_reg_auto/register_core.py
+src/open_reg_auto.egg-info/PKG-INFO
+src/open_reg_auto.egg-info/SOURCES.txt
+src/open_reg_auto.egg-info/dependency_links.txt
+src/open_reg_auto.egg-info/entry_points.txt
+src/open_reg_auto.egg-info/requires.txt
+src/open_reg_auto.egg-info/top_level.txt

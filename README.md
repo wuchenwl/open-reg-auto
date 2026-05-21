@@ -1,28 +1,50 @@
+
 # open-reg-auto
 
-## 当前状态
+## 项目简介
 
-当前版本已经实测打通完整注册链，并成功换出 token。
+本项目实现了对 ChatGPT 官网注册接口的纯协议逆向，在正常配置下注册成功率接近 100%（无异常情况）。部分流程思路受 [basketikun/chatgpt2api](https://github.com/basketikun/chatgpt2api) 启发。
 
-本项目 部分参考 `basketikun/chatgpt2api` 纯协议注册脚本项目 目前需要一定能力才能完美使用 正常配置环境下达到了很高了reg成功率。
+![注册成功率示例](https://github.com/user-attachments/assets/d53e1df2-8bd0-4543-a75f-fece4afdfb78)
 
-已验证成功的稳定主链为：
+> 社区用户将本项目集成至 `chatgpt2api` 后，注册成功率由约 5% 提升至近乎 100%（230 个测试样本），仅 2 例因 callback 检测过快而失败。
 
-1. `/api/accounts/authorize`
+---
+
+## ⚠️ 免责声明
+
+本项目仅限**个人学习、技术研究与非商业交流**使用。使用即代表你同意以下条款：
+
+- ❌ 不得用于任何**商业用途、盈利、批量操作、自动化滥用或规模化调用**
+- ❌ 不得用于**破坏市场秩序、恶意竞争、套利倒卖、二次售卖相关服务**
+- ❌ 不得违反 **OpenAI 服务条款**或**当地法律法规**
+- ❌ 不得生成、传播或协助生成**违法、暴力、色情、未成年人相关**内容，或用于**诈骗、欺诈、骚扰**等非法行为
+- ⚠️ 使用者承担全部风险（账号封禁、法律责任等），项目作者不承担任何后果
+
+---
+
+## 当前功能状态
+
+✅ 已完整打通注册链，成功换出 Token  
+✅ 已验证稳定的主流程节点：
+
+1. `/api/accounts/authorize` + PKCE → 建立会话
 2. `/api/accounts/user/register`
 3. `/api/accounts/email-otp/send`
 4. `/api/accounts/email-otp/validate`
 5. `/api/accounts/create_account`
-6. `platform.openai.com/auth/callback -> oauth/token`
+6. `platform.openai.com/auth/callback` → `/oauth/token`
 
-已完成的能力：
+已完成能力列表：
 
-- `authorize` / PKCE / session establishment
-- `MaliAPI` 邮箱创建与收码
-- 注册提交 / 发验证码 / 验证码校验 / about-you / create_account
-- callback 提取与 token exchange
-- CLI `--config` 正式入口
-- 结果落盘到 `data/last_result.json`
+- `authorize` / PKCE 流程
+- MaliAPI 邮箱创建与验证码接收
+- 注册提交 / 发码 / 校验 / 创建账号
+- callback 提取与 Token 兑换
+- CLI `--config` 主入口
+- 结果自动落盘至 `data/last_result.json`
+
+---
 
 ## 安装
 
@@ -33,7 +55,9 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## CLI 用法
+---
+
+## CLI 使用指南
 
 ### 查看帮助
 
@@ -42,58 +66,49 @@ cd /www/wwwroot/open-reg-auto
 .venv/bin/python -m open_reg_auto.cli --help
 ```
 
-### 使用配置文件运行一次完整注册链
+### 完整注册（使用配置文件）
 
 ```bash
-cd /www/wwwroot/open-reg-auto
 .venv/bin/python -m open_reg_auto.cli register --config /path/to/config.json
 ```
 
-### 直接覆盖代理
+### 临时覆盖代理
 
 ```bash
-cd /www/wwwroot/open-reg-auto
 .venv/bin/python -m open_reg_auto.cli register \
   --config /path/to/config.json \
   --proxy 'socks5://user:pass@host:port'
 ```
 
-### 仅生成 sub2api OAuth 第一阶段授权链接
+### 生成 sub2api OAuth 第一阶段授权链接
 
 ```bash
-cd /www/wwwroot/open-reg-auto
 .venv/bin/python -m open_reg_auto.cli sub2api-oauth \
   --redirect-uri 'http://localhost:1455/auth/callback' \
   --login-hint 'example@example.com'
 ```
 
-会输出 `authorize_url / state / nonce / device_id / code_verifier` 等字段，供手动浏览器流或上层编排保存。
+输出字段：`authorize_url`、`state`、`nonce`、`device_id`、`code_verifier` 等。
 
-### 使用 callback/code 完成 token 换取并导出 sub2api JSON
+### 使用 callback 或 code 完成 Token 换取并导出 sub2api JSON
 
 ```bash
-cd /www/wwwroot/open-reg-auto
+# 方式1：传入完整 callback URL
 .venv/bin/python -m open_reg_auto.cli sub2api-oauth \
   --config /path/to/sub2api_oauth.json \
   --callback-url 'http://localhost:1455/auth/callback?code=XXX&state=YYY'
-```
 
-也可以只传裸 `code`：
-
-```bash
-cd /www/wwwroot/open-reg-auto
+# 方式2：仅传入 code
 .venv/bin/python -m open_reg_auto.cli sub2api-oauth \
   --config /path/to/sub2api_oauth.json \
   --code 'XXX'
 ```
 
-## 标准配置模板
+---
 
-可以直接参考：
+## 配置文件模板
 
-- `data/test_config.example.json`
-
-示例：
+参考文件：`data/test_config.example.json`
 
 ```json
 {
@@ -114,9 +129,18 @@ cd /www/wwwroot/open-reg-auto
 }
 ```
 
+### MaliAPI 说明
+
+已支持 `type = maliapi`，推荐显式配置：
+
+- `base_url`：`https://maliapi.215.im/v1`
+- `api_key`：你的 API Key
+
+---
+
 ## 输出结果
 
-CLI 成功或失败后都会输出一个 JSON 摘要，例如：
+CLI 执行完毕会输出一个 JSON 摘要，例如：
 
 ```json
 {
@@ -129,37 +153,20 @@ CLI 成功或失败后都会输出一个 JSON 摘要，例如：
 }
 ```
 
-同时完整结果会保存到：
+完整结果保存在 `data/last_result.json`，通常包含：
 
-- `data/last_result.json`
-
-其中通常包含：
-
-- `email`
-- `password`
-- `access_token`
-- `refresh_token`
-- `id_token`
+- `email` / `password`
+- `access_token` / `refresh_token` / `id_token`
 - `mailbox`
 - `callback_url`
 - `error`
 
-sub2api OAuth 第一阶段完成后还会额外落盘：
+### sub2api OAuth 额外输出
 
-- `data/export_accounts.json`：可直接供 sub2api 导入的账号 JSON
-- `data/last_sub2api_account_archive.json`：完整账号档案（authorize/callback/tokens/profile）
+- `data/export_accounts.json` —— 可直接导入 sub2api 的账号 JSON
+- `data/last_sub2api_account_archive.json` —— 完整账号档案（authorize / callback / tokens / profile）
 
-## MaliAPI 说明
-
-当前 `src/open_reg_auto/mail_provider.py` 已支持 provider type = `maliapi`。
-
-推荐显式提供：
-
-- `type = maliapi`
-- `base_url = https://maliapi.215.im/v1`
-- `api_key = 你的_api_key`
-
-## sub2api OAuth 配置示例
+### sub2api OAuth 配置示例
 
 ```json
 {
@@ -179,12 +186,8 @@ sub2api OAuth 第一阶段完成后还会额外落盘：
 }
 ```
 
-## 当前验证结论
+---
 
-当前这版在目标环境下已连续多次完整回归成功，主链稳定性已达到“基本可用”状态。
+## 验证结论
 
-如果后续要继续增强，优先方向建议是：
-
-1. 批量执行入口
-2. 结果归档/轮转
-3. 失败重试与阶段级诊断输出
+当前版本在目标环境下已多次完整回归成功，主链稳定性达到“基本可用”状态。
